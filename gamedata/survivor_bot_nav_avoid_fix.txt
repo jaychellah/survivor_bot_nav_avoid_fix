@@ -1,0 +1,110 @@
+"Games"
+{
+	"left4dead"
+	{
+		"Addresses"
+		{
+			"SurvivorBotPathCost vtable"
+			{
+				"windows"
+				{
+					"signature" "SurvivorBotPathCost vtable"
+					"read" "14"
+				}
+
+				"linux"
+				{
+					"signature" "SurvivorBotPathCost vtable"
+					"read" "0"
+					"offset" "8"
+				}
+			}
+		}
+
+		"Offsets"
+		{
+			"CNavArea::m_center"
+			{
+				"linux"		"44"
+				"windows"	"44"
+			}
+
+			"CNavArea::m_attributeFlags"
+			{
+				"linux"		"84"
+				"windows"	"84"
+			}
+		}
+
+		"Signatures"
+		{
+			"SurvivorBotPathCost vtable"
+			{
+				"library"	"server"
+				"linux"		"@_ZTV19SurvivorBotPathCost"
+				"windows"	"\x33\xC9\x8B\x11\x8B\x82\x2A\x2A\x2A\x2A\xC7\x44\x24\x18"
+				// 33 C9 8B 11 8B 82 ? ? ? ? C7 44 24 18
+				// Search for string "Call brian! Reachability neighbor cache screwed! from: %d (cached neighbor %d) to: %d (cached neighbor %d)\n" and look for this, above string:
+				// xor     ecx, ecx
+				//
+				// mov     edx, [ecx]
+				// mov     eax, [edx+XXXh]
+				// mov     [esp+28h+var_10], offset off_XXXXXXXX	<- vtable
+			}
+		}
+	}
+
+	"left4dead2"
+	{
+		"Addresses"
+		{
+			"SurvivorBotPathCost vtable"
+			{
+				"windows"
+				{
+					"signature" "SurvivorBotPathCost vtable"
+					"read" "13"
+				}
+
+				"linux"
+				{
+					"signature" "SurvivorBotPathCost vtable"
+					"read" "0"
+					"offset" "8"
+				}
+			}
+		}
+
+		"Offsets"
+		{
+			"CNavArea::m_center"
+			{
+				"linux"		"44"
+				"windows"	"44"
+			}
+
+			"CNavArea::m_attributeFlags"
+			{
+				"linux"		"84"
+				"windows"	"84"
+			}
+		}
+
+		"Signatures"
+		{
+			"SurvivorBotPathCost vtable"
+			{
+				"library"	"server"
+				"linux"		"@_ZTV19SurvivorBotPathCost"
+				"windows"	"\x33\xC9\x8B\x11\x8B\x82\x2A\x2A\x2A\x2A\xC7\x45\xE4"
+				// 33 C9 8B 11 8B 82 ? ? ? ? C7 45 E4
+				// Search for string "Call brian! Reachability neighbor cache screwed! from: %d (cached neighbor %d) to: %d (cached neighbor %d)\n" and look for this, above string:
+				// xor     ecx, ecx
+				//
+				// mov     edx, [ecx]
+				// mov     eax, [edx+XXXh]
+				// mov     [ebp+var_1C], offset off_XXXXXXXX	<- vtable
+			}
+		}
+	}
+}
