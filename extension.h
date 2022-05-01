@@ -50,4 +50,7 @@ private:
 	int m_nSHookID;
 
 	float Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *pArea, CNavArea *pFromArea, const CNavLadder *pLadder, const CFuncElevator *pElevator, float flLength);
+
+public:
+	IForward *m_pFwd_CalcSurvivorBotPathCost = nullptr;
 };

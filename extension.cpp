@@ -11,7 +11,7 @@ SH_DECL_MANUALHOOK5(MHook_SurvivorBotPathCost_FnCallOp, 0, 0, 0, float, CNavArea
 int CNavArea::m_nOffset_m_center = -1;
 int CNavArea::m_nOffset_m_attributeFlags = -1;
 
-ICvar *g_pCVar = NULL;
+ICvar *g_pCVar = nullptr;
 
 ConVar SurvivorBotPathAvoidPenalty("sb_path_avoid_penalty", "20.0", FCVAR_CHEAT);
 
@@ -68,6 +68,10 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 
 	ConVar_Register(0, this);
 
+	sharesys->RegisterLibrary(myself, "survivor_bot_nav_avoid_fix");
+
+	m_pFwd_CalcSurvivorBotPathCost = forwards->CreateForward("L4D_2_OnCalcSurvivorBotPathCost", ET_Event, 4, NULL, Param_Cell, Param_Float, Param_Cell, Param_FloatByRef);
+
 	return true;
 }
 
@@ -76,6 +80,8 @@ void CSurvivorBotNavAvoidFix::SDK_OnUnload()
 	SH_REMOVE_HOOK_ID(m_nSHookID);
 
 	ConVar_Unregister();
+
+	forwards->ReleaseForward(m_pFwd_CalcSurvivorBotPathCost);
 }
 
 bool CSurvivorBotNavAvoidFix::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
@@ -115,14 +121,35 @@ float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *
 			flDist = (pArea->GetCenter() - pFromArea->GetCenter()).Length();
 		}
 
+		float flOrigCost = flCost;
+
+		cell_t nResult = Pl_Continue;
+
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(reinterpret_cast<cell_t>(pArea));
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushFloat(flDist);
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(pArea->GetAttributes());
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushFloatByRef(&flCost);
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->Execute(&nResult);
+
+		switch (nResult)
+		{
+			case Pl_Continue:
+				break;
+			case Pl_Changed:
+				flOrigCost = flCost;
+			case Pl_Handled:
+			case Pl_Stop:
+				RETURN_META_VALUE(MRES_SUPERCEDE, flCost);
+		}
+
 		// if this is an area to avoid, add penalty
 		if (pArea->GetAttributes() & NAV_MESH_AVOID)
 		{
 			const float flAvoidPenalty = SurvivorBotPathAvoidPenalty.GetFloat();
-			flCost += flAvoidPenalty * flDist;
+			flOrigCost += flAvoidPenalty * flDist;
 		}
 
-		RETURN_META_VALUE(MRES_SUPERCEDE, flCost);
+		RETURN_META_VALUE(MRES_SUPERCEDE, flOrigCost);
 	}
 
 	RETURN_META_VALUE(MRES_IGNORED, 0.0f);
