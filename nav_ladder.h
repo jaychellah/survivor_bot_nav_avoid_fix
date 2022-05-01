@@ -18,7 +18,7 @@ private:
 	void *__vptr;
 
 public:
-    enum LadderDirectionType
+	enum LadderDirectionType
 	{
 		LADDER_UP = 0,
 		LADDER_DOWN,
@@ -26,7 +26,7 @@ public:
 		NUM_LADDER_DIRECTIONS
 	};
 
-    Vector m_top;									///< world coords of the top of the ladder
+	Vector m_top;									///< world coords of the top of the ladder
 	Vector m_bottom;								///< world coords of the top of the ladder
 	float m_length;									///< the length of the ladder
 	float m_width;

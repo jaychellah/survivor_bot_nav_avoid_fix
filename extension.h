@@ -6,10 +6,7 @@ class CNavArea;
 class CNavLadder;
 class CFuncElevator;
 
-#define TEAM_UNASSIGNED 0
-#define TEAM_SURVIVOR 2
-
-class CSurvivorBotNavAvoidFix : public SDKExtension
+class CSurvivorBotNavAvoidFix : public SDKExtension, public IConCommandBaseAccessor
 {
 public:
 	/**
@@ -26,7 +23,7 @@ public:
 	 * @brief This is called once all known extensions have been loaded.
 	 * Note: It is is a good idea to add natives here, if any are provided.
 	 */
-    // virtual void SDK_OnAllLoaded(void);
+	// virtual void SDK_OnAllLoaded() override;
 
 	/**
 	 * @brief This is called right before the extension is unloaded.
@@ -41,10 +38,14 @@ public:
 	 * @param late			Whether or not Metamod considers this a late load.
 	 * @return				True to succeed, false to fail.
 	 */
-	// virtual bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late) override;
+	virtual bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late) override;
 #endif
+	// Flags is a combination of FCVAR flags in cvar.h.
+	// hOut is filled in with a handle to the variable.
+	virtual bool RegisterConCommandBase(ConCommandBase *pVar) override;
+
 private:
-	void *m_pFn_SurvivorBotPathCost_vtable;
+	void *m_pfn_SurvivorBotPathCost_vtable;
 
 	int m_nSHookID;
 

@@ -11,6 +11,10 @@ SH_DECL_MANUALHOOK5(MHook_SurvivorBotPathCost_FnCallOp, 0, 0, 0, float, CNavArea
 int CNavArea::m_nOffset_m_center = -1;
 int CNavArea::m_nOffset_m_attributeFlags = -1;
 
+ICvar *g_pCVar = NULL;
+
+ConVar SurvivorBotPathAvoidPenalty("sb_path_avoid_penalty", "20.0", FCVAR_CHEAT);
+
 bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 {
 	IGameConfig *pGameConfig;
@@ -40,7 +44,7 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 		return false;
 	}
 
-	if (!pGameConfig->GetAddress("SurvivorBotPathCost vtable", &m_pFn_SurvivorBotPathCost_vtable))
+	if (!pGameConfig->GetAddress("SurvivorBotPathCost vtable", &m_pfn_SurvivorBotPathCost_vtable))
 	{
 		ke::SafeStrcpy(error, maxlen, "Unable to find gamedata address entry for \"SurvivorBotPathCost vtable\"");
 
@@ -49,7 +53,7 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 		return false;
 	}
 
-	if (m_pFn_SurvivorBotPathCost_vtable == nullptr)
+	if (m_pfn_SurvivorBotPathCost_vtable == nullptr)
 	{
 		ke::SafeStrcpy(error, maxlen, "Unable to find signature in binary for gamedata entry \"SurvivorBotPathCost vtable\"");
 
@@ -60,7 +64,9 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 
 	gameconfs->CloseGameConfigFile(pGameConfig);
 
-	m_nSHookID = SH_ADD_MANUALDVPHOOK(MHook_SurvivorBotPathCost_FnCallOp, m_pFn_SurvivorBotPathCost_vtable, SH_MEMBER(this, &CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post), true);
+	m_nSHookID = SH_ADD_MANUALDVPHOOK(MHook_SurvivorBotPathCost_FnCallOp, m_pfn_SurvivorBotPathCost_vtable, SH_MEMBER(this, &CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post), true);
+
+	ConVar_Register(0, this);
 
 	return true;
 }
@@ -68,6 +74,21 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 void CSurvivorBotNavAvoidFix::SDK_OnUnload()
 {
 	SH_REMOVE_HOOK_ID(m_nSHookID);
+
+	ConVar_Unregister();
+}
+
+bool CSurvivorBotNavAvoidFix::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
+{
+	GET_V_IFACE_CURRENT(GetEngineFactory, g_pCVar, ICvar, CVAR_INTERFACE_VERSION);
+
+	return true;
+}
+
+bool CSurvivorBotNavAvoidFix::RegisterConCommandBase(ConCommandBase *pVar)
+{
+	/* Always call META_REGCVAR instead of going through the engine. */
+	return META_REGCVAR(pVar);
 }
 
 float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *pArea, CNavArea *pFromArea, const CNavLadder *pLadder, const CFuncElevator *pElevator, float flLength)
@@ -97,7 +118,7 @@ float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *
 		// if this is an area to avoid, add penalty
 		if (pArea->GetAttributes() & NAV_MESH_AVOID)
 		{
-			const float flAvoidPenalty = 20.0f;
+			const float flAvoidPenalty = SurvivorBotPathAvoidPenalty.GetFloat();
 			flCost += flAvoidPenalty * flDist;
 		}
 
