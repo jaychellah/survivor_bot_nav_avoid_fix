@@ -137,6 +137,7 @@ float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *
 				break;
 			case Pl_Changed:
 				flOrigCost = flCost;
+				break;
 			case Pl_Handled:
 			case Pl_Stop:
 				RETURN_META_VALUE(MRES_SUPERCEDE, flCost);
