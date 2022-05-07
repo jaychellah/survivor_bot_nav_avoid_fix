@@ -53,6 +53,11 @@ CopyFiles('scripting', 'addons/sourcemod/scripting',
  [ 'survivor_bot_jump_cost_test.sp', ]
 )
 
+# Autoload file
+CopyFiles('extensions', 'addons/sourcemod/extensions',
+ [ 'survivor_bot_nav_avoid_fix.autoload', ]
+)
+
 # Copy binaries.
 for cxx_task in Extension.extensions:
   builder.AddCopy(cxx_task.binary, folder_map['addons/sourcemod/extensions'])

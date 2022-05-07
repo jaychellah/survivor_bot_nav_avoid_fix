@@ -9,12 +9,17 @@ On top of that, it provides an **API** so that you can specify your own rules fo
 
 # API
 - Global Forward
-  - `L4D_2_OnCalcSurvivorBotPathCost( Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )`
+  - `L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )`
 
 Example code:
 ```
-public Action L4D_2_OnCalcSurvivorBotPathCost( Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )
+public Action L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )
 {
+    if ( adrThis.m_ignorePenalties )
+    {
+        return Plugin_Continue;
+    }
+
     if ( fAreaAttributes & NAV_MESH_JUMP )
     {
         const float flJumpPenalty = 100.0;
@@ -28,6 +33,8 @@ public Action L4D_2_OnCalcSurvivorBotPathCost( Address adrArea, float flDist, Na
 ```
 
 This will tell the bot that areas marked as **JUMP** are too dangerous (since penalty is 100) to traverse and to avoid it, if possible.
+
+**Note**: If you're going to prevent bot from ever going to an area, use `Plugin_Handled` or `Plugin_Stop`!
 
 # Docs
 - [Navigation Areas and Costs (Unity)](https://docs.unity3d.com/Manual/nav-AreasAndCosts.html)

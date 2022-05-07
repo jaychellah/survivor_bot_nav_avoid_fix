@@ -32,9 +32,47 @@ enum NavAttributeType
 	NAV_MESH_NAV_BLOCKER	= 0x80000000				// area is blocked by nav blocker ( Alas, needed to hijack a bit in the attributes to get within a cache line [7/24/2008 tom])
 };
 
+methodmap SurvivorBotPathCost
+{
+	property Address m_me
+	{
+		public get()
+		{
+			return view_as< Address >( LoadFromAddress( view_as< Address >( this ) + view_as< Address >( 4 ), NumberType_Int32 ) );
+		}
+	}
+
+	property Address m_survivorLocomotion
+	{
+		public get()
+		{
+			return view_as< Address >( LoadFromAddress( view_as< Address >( this ) + view_as< Address >( 8 ), NumberType_Int32 ) );
+		}
+	}
+
+	// Whether to allow traversal of damaging areas, if not ignoring penalties
+	property bool m_allowDamagingAreas
+	{
+		public get()
+		{
+			return view_as< bool >( LoadFromAddress( view_as< Address >( this ) + view_as< Address >( 12 ), NumberType_Int8 ) );
+		}
+	}
+
+	// Whether to return cost, without any penalties
+	property bool m_ignorePenalties
+	{
+		public get()
+		{
+			return view_as< bool >( LoadFromAddress( view_as< Address >( this ) + view_as< Address >( 13 ), NumberType_Int8 ) );
+		}
+	}
+};
+
 /**
  * Called whenever survivor bot is building a path to go somewhere.
  *
+ * @param adrThis				This pointer address.
  * @param adrArea				Area to navigate to.
  * @param flDist				Calculated distance traveled along path so far or length, if specified.
  * @param fAreaAttributes		Attributes of area to navigate to.
@@ -44,7 +82,7 @@ enum NavAttributeType
  *								Plugin_Handled or Plugin_Stop to block AVOID attribute check and override cost,
  *								Plugin_Continue otherwise.
  */
-forward Action L4D_2_OnCalcSurvivorBotPathCost( Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost );
+forward Action L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost );
 
 /**
  * Do not edit below this line!

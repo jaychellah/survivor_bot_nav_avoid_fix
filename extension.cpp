@@ -1,6 +1,7 @@
 #include "extension.h"
 #include "nav_ladder.h"
 #include "nav_area.h"
+#include "survivorbotpathcost.h"
 
 CSurvivorBotNavAvoidFix g_SurvivorBotNavAvoidFix;
 
@@ -70,7 +71,7 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 
 	sharesys->RegisterLibrary(myself, "survivor_bot_nav_avoid_fix");
 
-	m_pFwd_CalcSurvivorBotPathCost = forwards->CreateForward("L4D_2_OnCalcSurvivorBotPathCost", ET_Event, 4, NULL, Param_Cell, Param_Float, Param_Cell, Param_FloatByRef);
+	m_pFwd_CalcSurvivorBotPathCost = forwards->CreateForward("L4D_2_OnCalcSurvivorBotPathCost", ET_Event, 5, NULL, Param_Cell, Param_Cell, Param_Float, Param_Cell, Param_FloatByRef);
 
 	return true;
 }
@@ -99,6 +100,8 @@ bool CSurvivorBotNavAvoidFix::RegisterConCommandBase(ConCommandBase *pVar)
 
 float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *pArea, CNavArea *pFromArea, const CNavLadder *pLadder, const CFuncElevator *pElevator, float flLength)
 {
+	SurvivorBotPathCost *_this = META_IFACEPTR(SurvivorBotPathCost);
+
 	float flCost = META_RESULT_ORIG_RET(float);
 
 	if (flCost > 0.0f)
@@ -125,6 +128,7 @@ float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *
 
 		cell_t nResult = Pl_Continue;
 
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(reinterpret_cast<cell_t>(_this));
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(reinterpret_cast<cell_t>(pArea));
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushFloat(flDist);
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(pArea->GetAttributes());
@@ -143,11 +147,14 @@ float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *
 				RETURN_META_VALUE(MRES_SUPERCEDE, flCost);
 		}
 
-		// if this is an area to avoid, add penalty
-		if (pArea->GetAttributes() & NAV_MESH_AVOID)
+		if (!_this->m_ignorePenalties)
 		{
-			const float flAvoidPenalty = SurvivorBotPathAvoidPenalty.GetFloat();
-			flOrigCost += flAvoidPenalty * flDist;
+			// if this is an area to avoid, add penalty
+			if (pArea->GetAttributes() & NAV_MESH_AVOID)
+			{
+				const float flAvoidPenalty = SurvivorBotPathAvoidPenalty.GetFloat();
+				flOrigCost += flAvoidPenalty * flDist;
+			}
 		}
 
 		RETURN_META_VALUE(MRES_SUPERCEDE, flOrigCost);
