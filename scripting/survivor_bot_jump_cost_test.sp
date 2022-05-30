@@ -3,7 +3,7 @@
 #define REQUIRE_EXTENSIONS
 #include <survivor_bot_nav_avoid_fix>
 
-public Action L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )
+public Action L4D_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, int iBot, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )
 {
     if ( adrThis.m_ignorePenalties )
     {

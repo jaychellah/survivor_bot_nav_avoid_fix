@@ -73,6 +73,7 @@ methodmap SurvivorBotPathCost
  * Called whenever survivor bot is building a path to go somewhere.
  *
  * @param adrThis				This pointer address.
+ * @param iBot					Survivor bot client index.
  * @param adrArea				Area to navigate to.
  * @param flDist				Calculated distance traveled along path so far or length, if specified.
  * @param fAreaAttributes		Attributes of area to navigate to.
@@ -82,7 +83,7 @@ methodmap SurvivorBotPathCost
  *								Plugin_Handled or Plugin_Stop to block AVOID attribute check and override cost,
  *								Plugin_Continue otherwise.
  */
-forward Action L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost );
+forward Action L4D_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, int iBot, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost );
 
 /**
  * Do not edit below this line!

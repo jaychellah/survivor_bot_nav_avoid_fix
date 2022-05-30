@@ -45,6 +45,15 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 		return false;
 	}
 
+	if (!pGameConfig->GetOffset("NextBot player pointer", &m_nOffset_NextBot_player_pointer))
+	{
+		ke::SafeStrcpy(error, maxlen, "Unable to find gamedata offset entry for \"NextBot player pointer\"");
+
+		gameconfs->CloseGameConfigFile(pGameConfig);
+
+		return false;
+	}
+
 	if (!pGameConfig->GetAddress("SurvivorBotPathCost vtable", &m_pfn_SurvivorBotPathCost_vtable))
 	{
 		ke::SafeStrcpy(error, maxlen, "Unable to find gamedata address entry for \"SurvivorBotPathCost vtable\"");
@@ -71,7 +80,7 @@ bool CSurvivorBotNavAvoidFix::SDK_OnLoad(char *error, size_t maxlen, bool late)
 
 	sharesys->RegisterLibrary(myself, "survivor_bot_nav_avoid_fix");
 
-	m_pFwd_CalcSurvivorBotPathCost = forwards->CreateForward("L4D_2_OnCalcSurvivorBotPathCost", ET_Event, 5, NULL, Param_Cell, Param_Cell, Param_Float, Param_Cell, Param_FloatByRef);
+	m_pFwd_CalcSurvivorBotPathCost = forwards->CreateForward("L4D_OnCalcSurvivorBotPathCost", ET_Event, 6, NULL, Param_Cell, Param_Cell, Param_Cell, Param_Float, Param_Cell, Param_FloatByRef);
 
 	return true;
 }
@@ -124,11 +133,15 @@ float CSurvivorBotNavAvoidFix::Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *
 			flDist = (pArea->GetCenter() - pFromArea->GetCenter()).Length();
 		}
 
+		// SurvivorBot *pBot = static_cast<SurvivorBot *>(m_me);
+		CBaseEntity *pBot = reinterpret_cast<CBaseEntity *>(reinterpret_cast<char *>(_this->m_me) - m_nOffset_NextBot_player_pointer);
+
 		float flOrigCost = flCost;
 
 		cell_t nResult = Pl_Continue;
 
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(reinterpret_cast<cell_t>(_this));
+		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(gamehelpers->EntityToBCompatRef(pBot));
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(reinterpret_cast<cell_t>(pArea));
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushFloat(flDist);
 		g_SurvivorBotNavAvoidFix.m_pFwd_CalcSurvivorBotPathCost->PushCell(pArea->GetAttributes());

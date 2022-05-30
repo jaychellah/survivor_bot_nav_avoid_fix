@@ -9,11 +9,11 @@ On top of that, it provides an **API** so that you can specify your own rules fo
 
 # API
 - Global Forward
-  - `L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )`
+  - `L4D_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, int iBot, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )`
 
 Example code:
 ```
-public Action L4D_2_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )
+public Action L4D_OnCalcSurvivorBotPathCost( SurvivorBotPathCost adrThis, int iBot, Address adrArea, float flDist, NavAttributeType fAreaAttributes, float& flCost )
 {
     if ( adrThis.m_ignorePenalties )
     {

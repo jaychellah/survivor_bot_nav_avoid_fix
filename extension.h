@@ -28,7 +28,7 @@ public:
 	/**
 	 * @brief This is called right before the extension is unloaded.
 	 */
-	virtual void SDK_OnUnload(void) override;
+	virtual void SDK_OnUnload() override;
 #ifdef SMEXT_CONF_METAMOD
 	/**
 	 * @brief Called when Metamod is attached, before the extension version is called.
@@ -48,6 +48,7 @@ private:
 	void *m_pfn_SurvivorBotPathCost_vtable;
 
 	int m_nSHookID;
+	int m_nOffset_NextBot_player_pointer;
 
 	float Hook_SurvivorBotPathCost_FnCallOp_Post(CNavArea *pArea, CNavArea *pFromArea, const CNavLadder *pLadder, const CFuncElevator *pElevator, float flLength);
 

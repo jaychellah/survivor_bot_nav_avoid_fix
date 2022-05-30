@@ -34,6 +34,13 @@
 				"linux"		"84"
 				"windows"	"84"
 			}
+
+			// Search for string "%3.2f: %s giving up, object is UNREACHABLE\n"
+			"NextBot player pointer"
+			{
+				"linux"		"11200"
+				"windows"	"11184"
+			}
 		}
 
 		"Signatures"
@@ -87,6 +94,13 @@
 			{
 				"linux"		"84"
 				"windows"	"84"
+			}
+
+			// Search for string "%3.2f: %s giving up, object is UNREACHABLE\n"
+			"NextBot player pointer"
+			{
+				"linux"		"16424"
+				"windows"	"16448"
 			}
 		}
 
